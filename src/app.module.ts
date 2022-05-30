@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -11,10 +13,15 @@ import { AuthService } from './services/auth/auth.service';
 import { JwtStrategy } from './services/auth/jwt.strategy';
 import { configService } from './services/config/config.service';
 import { UserService } from './services/user/user.service';
+import { GoogleStrategy } from './google.strategy'
+import { MatchModel } from './models/match.model';
+import { MatchService } from './services/match/match.service';
+import { MatchController } from './controllers/match/match.controller';
+import { UserMatchPivotModel } from './models/usermatchpivot.model';
 @Module({
   imports: [
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
-    TypeOrmModule.forFeature([UserModel]),
+    TypeOrmModule.forFeature([UserModel, MatchModel, UserMatchPivotModel]),
     PassportModule.register({
       defaultStrategy: 'jwt',
       property: 'user',
@@ -27,7 +34,7 @@ import { UserService } from './services/user/user.service';
       },
     }),
   ],
-  controllers: [AppController, AuthController, UserController],
-  providers: [AppService, UserService, AuthService, JwtStrategy],
+  controllers: [AppController, AuthController, UserController, MatchController],
+  providers: [AppService, UserService, AuthService, JwtStrategy, GoogleStrategy, MatchService],
 })
 export class AppModule {}

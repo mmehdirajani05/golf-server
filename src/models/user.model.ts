@@ -1,6 +1,8 @@
-import { Entity, Column } from 'typeorm';
+/* eslint-disable prettier/prettier */
+import { Entity, Column, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { BaseModel } from './base.model';
+import { UserMatchPivotModel } from './usermatchpivot.model';
 
 @Entity({ name: 'user' })
 export class UserModel extends BaseModel {
@@ -69,4 +71,14 @@ export class UserModel extends BaseModel {
     nullable: true,
   })
   address: string;
+
+  @Column({
+    nullable: true,
+    name: 'average_handicap',
+    default: 0
+  })
+  average_handicap: number;
+
+  @OneToMany(() => UserMatchPivotModel, x => x.user)
+  matchPivot: UserMatchPivotModel[];
 }

@@ -1,6 +1,10 @@
+/* eslint-disable prettier/prettier */
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { MatchModel } from 'src/models/match.model';
 import { UserModel } from 'src/models/user.model';
+import { UserMatchPivotModel } from 'src/models/usermatchpivot.model';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
 class ConfigService {
@@ -46,7 +50,7 @@ class ConfigService {
           rejectUnauthorized: false,
         },
       },
-      entities: [UserModel],
+      entities: [UserModel, MatchModel, UserMatchPivotModel],
     };
   }
 }

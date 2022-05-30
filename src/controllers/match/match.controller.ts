@@ -1,0 +1,41 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prettier/prettier */
+import { Controller, Get, UseGuards, Request, Param, Post, Body } from '@nestjs/common';
+import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import { CreateMatchDto } from 'src/dto/creatematch.dto';
+import { MatchInviteDto } from 'src/dto/matchinvite.dto';
+import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
+import { JwtAuthGuard } from 'src/services/auth/jwt-auth.guard';
+import { MatchService } from 'src/services/match/match.service';
+import { UserService } from 'src/services/user/user.service';
+
+@ApiTags('Match Settings')
+@Controller('api/match')
+export class MatchController {
+  
+  constructor(
+    private matchService: MatchService,
+    ) {}
+    
+//   @UseGuards(JwtAuthGuard)
+    @Post('create')
+    createMatch(@Body() createMatch: CreateMatchDto) {
+      return this.matchService.createMatch(createMatch)
+    }
+    
+    @Post('send-invite')
+    sendInvite(@Body() inviteDetails: MatchInviteDto) {
+      return this.matchService.sendInvite(inviteDetails)
+    }
+
+    @ApiProperty({description: 'Update user status and check if match users are completed, if so, organize teams'})
+    @Post('update-user-invite-status')
+    updateUserInviteStatus(@Body() updateStatus: UpdateUserInviteStatusDto) {
+      return this.matchService.updateUserInviteStatus(updateStatus)
+    }
+
+    @Get()
+    findAll() {
+      return this.matchService.findAll()
+    }
+}

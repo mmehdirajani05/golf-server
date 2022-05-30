@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
     PrimaryGeneratedColumn,
     Column,
@@ -6,7 +7,7 @@ import {
   } from 'typeorm';
   
   export abstract class BaseModel {
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryGeneratedColumn()
     id: string;
   
     @Column({
