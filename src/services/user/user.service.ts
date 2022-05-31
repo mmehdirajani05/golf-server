@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 import {
   HttpException,
@@ -18,6 +19,7 @@ import { UserModel } from 'src/models/user.model';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { MessageText } from 'src/constants/messages';
+import { UpdateUserDto } from 'src/dto/updateuser.dto';
 
 @Injectable()
 export class UserService {
@@ -197,6 +199,28 @@ export class UserService {
   async createPasswordHash(password: string) {
     const salt = 10
     return await bcrypt.hash(password, salt)
+  }
+
+  async getUserupdateUserById(user: UpdateUserDto, id) {
+    try {
+      const userToUpdate = await this.userRepository.findOne(id)
+      if(userToUpdate){
+        await this.userRepository.update(id, user)
+        const updatedUser = await this.userRepository.findOne(id)
+        if(updatedUser){
+          return {
+            response: 'User updated successfully!',
+            data: updatedUser
+          }
+        }
+      } else {
+        return {
+          response: 'User doesnt exist'
+        }
+      }
+    } catch(err) {
+      return err;
+    }
   }
 
   // async addAvatar(userId: string, imageBuffer: Buffer, filename: string) {
