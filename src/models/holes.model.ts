@@ -3,8 +3,9 @@ import { Entity, Column } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { BaseModel } from './base.model';
 
-@Entity({ name: 'team' })
-export class TeamModel extends BaseModel {
+@Entity({ name: 'holes' })
+export class HolesModel extends BaseModel {
+
   @Column({
     nullable: false,
     name: 'match_id',
@@ -13,16 +14,14 @@ export class TeamModel extends BaseModel {
 
   @Column({
     nullable: false,
-    name: 'captain',
+    name: 'yards'
   })
-  captain: number;
+  yards: number;
 
   @Column({
-    type: 'varchar',
-    length: 300,
-    nullable: false,
-    name: 'name',
+    nullable: true,
+    name: 'par_allowed'
   })
-  name: string;
+  par_allowed: number;
 
 }

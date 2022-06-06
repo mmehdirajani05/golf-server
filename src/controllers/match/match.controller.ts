@@ -2,6 +2,7 @@
 /* eslint-disable prettier/prettier */
 import { Controller, Get, UseGuards, Request, Param, Post, Body } from '@nestjs/common';
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import { CreateHolesDto } from 'src/dto/createholes.dto';
 import { CreateMatchDto } from 'src/dto/creatematch.dto';
 import { MatchInviteDto } from 'src/dto/matchinvite.dto';
 import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
@@ -32,6 +33,11 @@ export class MatchController {
     @Post('update-user-invite-status')
     updateUserInviteStatus(@Body() updateStatus: UpdateUserInviteStatusDto) {
       return this.matchService.updateUserInviteStatus(updateStatus)
+    }
+
+    @Post('create-holes')
+    createHoles(@Body() createHoles: CreateHolesDto) {
+      return this.matchService.createHoles(createHoles)
     }
 
     @Get()

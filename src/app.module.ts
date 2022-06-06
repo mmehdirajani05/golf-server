@@ -18,10 +18,16 @@ import { MatchModel } from './models/match.model';
 import { MatchService } from './services/match/match.service';
 import { MatchController } from './controllers/match/match.controller';
 import { UserMatchPivotModel } from './models/usermatchpivot.model';
+import { TeamModel } from './models/team.model';
+import { TeamPivotModel } from './models/teampivot.model';
+import { HolesModel } from './models/holes.model';
+import { ScoreboardModel } from './models/scoreboard.model';
+import { ScoreController } from './controllers/score/score.controller';
+import { ScoreService } from './services/score/score.service';
 @Module({
   imports: [
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
-    TypeOrmModule.forFeature([UserModel, MatchModel, UserMatchPivotModel]),
+    TypeOrmModule.forFeature([UserModel, MatchModel, UserMatchPivotModel, TeamModel, TeamPivotModel, HolesModel, ScoreboardModel]),
     PassportModule.register({
       defaultStrategy: 'jwt',
       property: 'user',
@@ -34,7 +40,7 @@ import { UserMatchPivotModel } from './models/usermatchpivot.model';
       },
     }),
   ],
-  controllers: [AppController, AuthController, UserController, MatchController],
-  providers: [AppService, UserService, AuthService, JwtStrategy, GoogleStrategy, MatchService],
+  controllers: [AppController, AuthController, UserController, MatchController, ScoreController],
+  providers: [AppService, UserService, AuthService, JwtStrategy, GoogleStrategy, MatchService, ScoreService],
 })
 export class AppModule {}

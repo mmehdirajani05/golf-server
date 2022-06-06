@@ -1,10 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { Entity, Column } from 'typeorm';
-import { Exclude } from 'class-transformer';
 import { BaseModel } from './base.model';
 
-@Entity({ name: 'team' })
-export class TeamModel extends BaseModel {
+@Entity({ name: 'scoreboard' })
+export class ScoreboardModel extends BaseModel {
+  @Column({
+    nullable: false,
+    name: 'user_id',
+  })
+  user_id: number;
+
   @Column({
     nullable: false,
     name: 'match_id',
@@ -13,16 +18,14 @@ export class TeamModel extends BaseModel {
 
   @Column({
     nullable: false,
-    name: 'captain',
+    name: 'hole_id',
   })
-  captain: number;
+  hole_id: number;
 
   @Column({
-    type: 'varchar',
-    length: 300,
     nullable: false,
-    name: 'name',
+    name: 'score'
   })
-  name: string;
+  score: number;
 
 }

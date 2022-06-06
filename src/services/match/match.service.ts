@@ -16,6 +16,7 @@ import { UserMatchPivotModel } from 'src/models/usermatchpivot.model';
 import { MatchInviteDto } from 'src/dto/matchinvite.dto';
 import { CreateMatchDto } from 'src/dto/creatematch.dto';
 import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
+import { HolesModel } from 'src/models/holes.model';
 
   
   @Injectable()
@@ -28,8 +29,11 @@ import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
       @InjectRepository(UserMatchPivotModel)
       private userMatchPivotRepository: Repository<UserMatchPivotModel>,
 
-    @InjectRepository(UserModel)
-    private userRepository: Repository<UserModel>,
+      @InjectRepository(UserModel)
+      private userRepository: Repository<UserModel>,
+
+      @InjectRepository(HolesModel)
+      private holesRepository: Repository<HolesModel>,
 
       private readonly jwtService: JwtService,
     ) {}
@@ -127,6 +131,24 @@ import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
             }
         } catch (err) {
             return err
+        }
+    }
+
+    async createHoles(createHoles) {
+        try {
+            const createHole = this.holesRepository.create(createHoles)
+            await this.holesRepository.save(createHole)
+            if(createHole) {
+                return {
+                    response: "Hole created successfully!"
+                }
+            } else {
+                return {
+                    response: "Error!"
+                }
+            }
+        } catch(err) {
+            return err;
         }
     }
 
