@@ -22,6 +22,6 @@ export class UserController {
 
   @Post(':id')
   async updateUser(@Body() user: UpdateUserDto, @Param() id) {
-    return await this.userService.getUserupdateUserById(user, id);
+    return await this.userService.updateUserById(user, id);
   }
 }

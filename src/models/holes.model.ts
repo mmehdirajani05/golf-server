@@ -24,4 +24,10 @@ export class HolesModel extends BaseModel {
   })
   par_allowed: number;
 
+  @Column({
+    nullable: true,
+    name: 'match_specific_id'
+  })
+  match_specific_id: number;
+
 }

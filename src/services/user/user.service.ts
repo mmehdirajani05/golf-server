@@ -201,7 +201,7 @@ export class UserService {
     return await bcrypt.hash(password, salt)
   }
 
-  async getUserupdateUserById(user: UpdateUserDto, id) {
+  async updateUserById(user: UpdateUserDto, id) {
     try {
       const userToUpdate = await this.userRepository.findOne(id)
       if(userToUpdate){

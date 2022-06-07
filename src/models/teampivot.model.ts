@@ -18,4 +18,10 @@ export class TeamPivotModel extends BaseModel {
   })
   user_id: number;
 
+  @Column({
+    nullable: false,
+    name: 'match_id',
+  })
+  match_id: number;
+
 }

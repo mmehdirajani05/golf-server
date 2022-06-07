@@ -12,7 +12,7 @@ export class TeamModel extends BaseModel {
   match_id: number;
 
   @Column({
-    nullable: false,
+    nullable: true,
     name: 'captain',
   })
   captain: number;

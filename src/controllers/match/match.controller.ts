@@ -44,4 +44,9 @@ export class MatchController {
     findAll() {
       return this.matchService.findAll()
     }
+
+    @Get('holes/:matchId')
+    getMatchHoles(@Param('matchId') matchId: number) {
+      return this.matchService.getMatchHoles(matchId)
+    }
 }

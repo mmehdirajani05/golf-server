@@ -6,6 +6,10 @@ import { IsArray, IsDate, IsDefined, IsInt, IsString } from 'class-validator';
 
 
 export class CreateHolesDto {
+    @IsArray()
+    public holes: Array<HolesParams>
+}
+export class HolesParams {
 
     @IsInt()
     public match_id: number;
@@ -15,5 +19,8 @@ export class CreateHolesDto {
 
     @IsInt()
     public par_allowed: number;
+
+    @IsInt()
+    public match_specific_id: number;
 
 }

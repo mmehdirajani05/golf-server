@@ -17,6 +17,8 @@ import { MatchInviteDto } from 'src/dto/matchinvite.dto';
 import { CreateMatchDto } from 'src/dto/creatematch.dto';
 import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
 import { HolesModel } from 'src/models/holes.model';
+import { TeamModel } from 'src/models/team.model';
+import { TeamPivotModel } from 'src/models/teampivot.model';
 
   
   @Injectable()
@@ -34,6 +36,12 @@ import { HolesModel } from 'src/models/holes.model';
 
       @InjectRepository(HolesModel)
       private holesRepository: Repository<HolesModel>,
+
+      @InjectRepository(TeamModel)
+      private teamsRepository: Repository<TeamModel>,
+
+      @InjectRepository(TeamPivotModel)
+      private teamPivotRepository: Repository<TeamPivotModel>,
 
       private readonly jwtService: JwtService,
     ) {}
@@ -117,13 +125,55 @@ import { HolesModel } from 'src/models/holes.model';
                 }
             })
             if(findEnteredUser.length == 16) {
-                const getPlayers = await this.userRepository.createQueryBuilder('user')
-                                                          .leftJoinAndSelect('user.matchPivot', 'user_match_pivot')
-                                                          .select(['user', 'user_match_pivot'])
-                                                          .where("user_match_pivot.match_id = :id", {id: updateUserStatus.match_id})
-                                                          .orderBy('user_average_handicap', 'ASC')
-                                                          .getMany()
-                return getPlayers;
+                // Make teams
+                for(let t = 1; t <= 4; t++) {
+                    const team = {
+                        match_id: updateUserStatus.match_id,
+                        name: `Team ${t}`
+                    }
+                    const createTeam = this.teamsRepository.create(team)
+                    await this.teamsRepository.save(createTeam)
+                }
+                try{
+                    const allMatchTeams = await this.teamsRepository.find({
+                        where: {
+                            match_id: updateUserStatus.match_id
+                        }
+                    })
+                    if(allMatchTeams.length == 4) {
+                        // Get attendees in ASC order to create teams  
+                        const getPlayers = await this.userRepository.createQueryBuilder('user')
+                                                .leftJoinAndSelect('user.matchPivot', 'user_match_pivot')
+                                                .select(['user', 'user_match_pivot'])
+                                                .where("user_match_pivot.match_id = :id", {id: updateUserStatus.match_id})
+                                                .orderBy('user_average_handicap', 'ASC')
+                                                .getMany()
+                        let teamId = 1;
+                        for(let p=0; p < getPlayers.length; p++) {
+                            const teamPlayer: any = {
+                                user_id: getPlayers[p].id,
+                                match_id: updateUserStatus.match_id,
+                                team_id: allMatchTeams[teamId-1].id
+                            }
+                            const assignPlayerToTeam = this.teamPivotRepository.create(teamPlayer)
+                            await this.teamPivotRepository.save(assignPlayerToTeam)
+                            if(teamId % 4 == 0) {
+                                teamId = 1
+                            } else {
+                                teamId++
+                            }
+                        }
+                        return {
+                            response: "Teams created successfully!"
+                        }
+                    } else {
+                        return {
+                            error: "Teams count didnt match expected number i.e. 4!"
+                        }
+                    }
+                } catch(err) {
+                    return err;
+                }
             } else {
                 return {
                     response: 'Insufficient users!'
@@ -136,16 +186,13 @@ import { HolesModel } from 'src/models/holes.model';
 
     async createHoles(createHoles) {
         try {
-            const createHole = this.holesRepository.create(createHoles)
-            await this.holesRepository.save(createHole)
-            if(createHole) {
-                return {
-                    response: "Hole created successfully!"
-                }
-            } else {
-                return {
-                    response: "Error!"
-                }
+            for(let i = 0; i < createHoles.holes.length; i++) {
+                const hole = createHoles.holes[i]
+                const createHole = this.holesRepository.create(hole)
+                await this.holesRepository.save(createHole)
+            }
+            return {
+                response: "Holes created successfully!"
             }
         } catch(err) {
             return err;
@@ -164,6 +211,27 @@ import { HolesModel } from 'src/models/holes.model';
             }
         } catch(err) {
             return err
+        }
+    }
+
+    async getMatchHoles(matchId) {
+        try {
+            const matchHoles = await this.holesRepository.find({
+                where: {
+                    match_id: matchId
+                }
+            })
+            if(matchHoles.length) {
+                return {
+                    response: matchHoles
+                }
+            } else {
+                return {
+                    response: "Holes not found!"
+                }
+            }
+        } catch(err) {
+            return err;
         }
     }
     
