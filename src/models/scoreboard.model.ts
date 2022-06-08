@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseModel } from './base.model';
+import { HolesModel } from './holes.model';
+import { UserModel } from './user.model';
 
 @Entity({ name: 'scoreboard' })
 export class ScoreboardModel extends BaseModel {
@@ -27,5 +29,13 @@ export class ScoreboardModel extends BaseModel {
     name: 'score'
   })
   score: number;
+
+  @ManyToOne(() => UserModel, emp => emp.scoreBoard)
+  @JoinColumn({name: "user_id", referencedColumnName: "id"})
+  user: UserModel;
+
+  @ManyToOne(() => HolesModel, emp => emp.scoreBoard)
+  @JoinColumn({name: "hole_id", referencedColumnName: "id"})
+  hole: HolesModel;
 
 }

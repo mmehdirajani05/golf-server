@@ -27,8 +27,8 @@ export class ScoreController {
       return this.scoreService.getMatchScores(matchScoreDto)
     }
 
-    // @Get()
-    // findAll() {
-    //   return this.scoreService.findAll()
-    // }
+    @Get('get-specific-hole-record/:holeId/:userId/:matchId')
+    getSpecificHoleRecord(@Param('holeId') holeId: number, @Param('userId') userId: number, @Param('matchId') matchId: number) {
+      return this.scoreService.getSpecificHoleRecord(holeId, userId, matchId)
+    }
 }

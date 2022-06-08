@@ -234,6 +234,23 @@ import { TeamPivotModel } from 'src/models/teampivot.model';
             return err;
         }
     }
+
+    async getSpecificHole(holeId) {
+        try {
+            const matchHole = await this.holesRepository.findOne(holeId)
+            if(matchHole) {
+                return {
+                    response: matchHole
+                }
+            } else {
+                return {
+                    error: "No hole found!"
+                }
+            }
+        } catch(err) {
+            return err;
+        }
+    }
     
   }
     

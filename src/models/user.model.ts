@@ -3,6 +3,7 @@ import { Entity, Column, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { BaseModel } from './base.model';
 import { UserMatchPivotModel } from './usermatchpivot.model';
+import { ScoreboardModel } from './scoreboard.model';
 
 @Entity({ name: 'user' })
 export class UserModel extends BaseModel {
@@ -78,6 +79,9 @@ export class UserModel extends BaseModel {
     default: 0
   })
   average_handicap: number;
+
+  @OneToMany(() => ScoreboardModel, x => x.user)
+  scoreBoard: ScoreboardModel[];
 
   @OneToMany(() => UserMatchPivotModel, x => x.user)
   matchPivot: UserMatchPivotModel[];

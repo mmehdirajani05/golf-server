@@ -49,4 +49,9 @@ export class MatchController {
     getMatchHoles(@Param('matchId') matchId: number) {
       return this.matchService.getMatchHoles(matchId)
     }
+
+    @Get('specific-hole/:holeId')
+    getSpecificHole(@Param('holeId') holeId: number) {
+      return this.matchService.getSpecificHole(holeId)
+    }
 }

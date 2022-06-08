@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { BaseModel } from './base.model';
+import { ScoreboardModel } from './scoreboard.model';
 
 @Entity({ name: 'holes' })
 export class HolesModel extends BaseModel {
@@ -29,5 +30,8 @@ export class HolesModel extends BaseModel {
     name: 'match_specific_id'
   })
   match_specific_id: number;
+
+  @OneToMany(() => ScoreboardModel, x => x.hole)
+  scoreBoard: ScoreboardModel[];
 
 }

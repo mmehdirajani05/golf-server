@@ -18,6 +18,7 @@ import { CreateMatchDto } from 'src/dto/creatematch.dto';
 import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
 import { HolesModel } from 'src/models/holes.model';
 import { ScoreboardModel } from 'src/models/scoreboard.model';
+import { TeamPivotModel } from 'src/models/teampivot.model';
 
   
   @Injectable()
@@ -37,6 +38,9 @@ import { ScoreboardModel } from 'src/models/scoreboard.model';
 
       @InjectRepository(ScoreboardModel)
       private scoreRepository: Repository<ScoreboardModel>,
+
+      @InjectRepository(TeamPivotModel)
+      private teamPivotRepository: Repository<TeamPivotModel>,
 
       private readonly jwtService: JwtService,
     ) {}
@@ -74,6 +78,7 @@ import { ScoreboardModel } from 'src/models/scoreboard.model';
     async getMatchScores(matchScoreDto) {
         try{
             const scores = await this.scoreRepository.find({
+                relations: ['user', 'hole'],
                 where: {
                     match_id: matchScoreDto.match_id
                 }
@@ -89,6 +94,35 @@ import { ScoreboardModel } from 'src/models/scoreboard.model';
             }
         } catch(err) {
             return err;
+        }
+    }
+
+    async getSpecificHoleRecord(holeId, userId, matchId) {
+        const getTeamId = await this.teamPivotRepository.find({
+            where: {
+                user_id: userId,
+                match_id: matchId
+            }
+        })
+        if(getTeamId.length) {
+            const teamId = getTeamId[0].team_id
+            const getAllTeamMembers = await this.teamPivotRepository.find({
+                select: ['user_id'],
+                where: {
+                    team_id: teamId,
+                    match_id: matchId
+                }
+            })
+            const getAllTeamMembersIds = getAllTeamMembers.map((v) => {
+                return +v.user_id
+            })
+            // return getAllTeamMembersIds;
+            const getUserAndScores = await this.userRepository.createQueryBuilder('u')
+                                            .leftJoinAndSelect('u.scoreBoard', 'score')
+                                            .where("score.match_id = :matchId", { matchId: matchId})
+                                            .andWhere("score.user_id IN (:...players)", { players: getAllTeamMembersIds })
+                                            .getMany();
+            return getUserAndScores;
         }
     }
 
