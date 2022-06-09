@@ -30,6 +30,12 @@ export class ScoreboardModel extends BaseModel {
   })
   score: number;
 
+  @Column({
+    nullable: true,
+    name: 'team_id'
+  })
+  team_id: number;
+
   @ManyToOne(() => UserModel, emp => emp.scoreBoard)
   @JoinColumn({name: "user_id", referencedColumnName: "id"})
   user: UserModel;

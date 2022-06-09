@@ -19,6 +19,7 @@ import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
 import { HolesModel } from 'src/models/holes.model';
 import { ScoreboardModel } from 'src/models/scoreboard.model';
 import { TeamPivotModel } from 'src/models/teampivot.model';
+import { max } from 'class-validator';
 
   
   @Injectable()
@@ -47,6 +48,12 @@ import { TeamPivotModel } from 'src/models/teampivot.model';
   
     async createUpdateScore(createUpdateScore) {
         try {
+            const getUserTeam = await this.teamPivotRepository.find({
+                where: {
+                    user_id: createUpdateScore.user_id
+                }
+            })
+            createUpdateScore = {...createUpdateScore, team_id: getUserTeam[0].team_id}
             const findScore = await this.scoreRepository.find({
                 where: {
                     match_id: createUpdateScore.match_id,
@@ -138,6 +145,28 @@ import { TeamPivotModel } from 'src/models/teampivot.model';
             }
         } catch(err) {
             return err
+        }
+    }
+
+    async getWinner(matchId) {
+        try {
+            const getWinner = await this.userRepository.createQueryBuilder('u')
+                                                    .leftJoinAndSelect('u.scoreBoard', 'score')
+                                                    .select(["u", "score"])
+                                                    // .addSelect("MAX(score.score)", "max")
+                                                    .where("score.match_id = :matchId", { matchId: matchId})
+                                                    .orderBy("score.score", 'DESC')
+                                                    .limit(1)
+                                                    .getMany();
+            if(getWinner.length) {
+                return getWinner;
+            } else {
+                return {
+                    error: "Not found!"
+                }
+            }
+        } catch(err) {
+            return err;
         }
     }
     

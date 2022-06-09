@@ -31,4 +31,9 @@ export class ScoreController {
     getSpecificHoleRecord(@Param('holeId') holeId: number, @Param('userId') userId: number, @Param('matchId') matchId: number) {
       return this.scoreService.getSpecificHoleRecord(holeId, userId, matchId)
     }
+
+    @Get('get-winner/:matchId')
+    getWinner(@Param('matchId') matchId: number) {
+      return this.scoreService.getWinner(matchId)
+    }
 }
