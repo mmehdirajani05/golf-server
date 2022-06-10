@@ -223,6 +223,30 @@ export class UserService {
     }
   }
 
+  async searchUser(query) {
+    try {
+      if(query) {
+        const searchedUsers = await this.userRepository.createQueryBuilder('u')
+                                                      .where("u.first_name LIKE :first_name", {first_name: `%${query}%`})
+                                                      .orWhere("u.last_name LIKE :last_name", {last_name: `%${query}%`})
+                                                      .getMany();
+        if(searchedUsers.length) {
+          return searchedUsers;
+        } else {
+          return {
+            error: "Users not found!"
+          }
+        }
+      } else {
+        return {
+          error: "Users not found!"
+        }
+      }
+    } catch(err) {
+      return err;
+    }
+  }
+
   // async addAvatar(userId: string, imageBuffer: Buffer, filename: string) {
   //   const avatar = await this.filesService.uploadPublicFile(
   //     imageBuffer,

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
-import { Controller, Get, UseGuards, Request, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Post, Body, Param, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from 'src/dto/updateuser.dto';
 import { JwtAuthGuard } from 'src/services/auth/jwt-auth.guard';
@@ -23,5 +23,10 @@ export class UserController {
   @Post(':id')
   async updateUser(@Body() user: UpdateUserDto, @Param() id) {
     return await this.userService.updateUserById(user, id);
+  }
+
+  @Get('search-user')
+  async searchUser(@Query('search_str') query) {
+    return await this.userService.searchUser(query);
   }
 }

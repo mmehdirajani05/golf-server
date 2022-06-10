@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Exclude } from 'class-transformer';
 import { BaseModel } from './base.model';
 import { UserModel } from './user.model';
 
@@ -25,10 +24,11 @@ export class UserMatchPivotModel extends BaseModel {
   user_id: number;
   
 
+  // TODO: Status set to pending hard coded, need to resolve this later.
   @Column({
     type: 'enum',
     enum: InviteStatus,
-    default: InviteStatus.pending
+    default: InviteStatus.admitted
   })
   status: InviteStatus;
 

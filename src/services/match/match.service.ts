@@ -9,8 +9,6 @@ import {
   import { InjectRepository } from '@nestjs/typeorm';
   import { UserModel } from 'src/models/user.model';
   import { Repository } from 'typeorm';
-  import * as bcrypt from 'bcrypt';
-  import { MessageText } from 'src/constants/messages';
 import { MatchModel } from 'src/models/match.model';
 import { UserMatchPivotModel } from 'src/models/usermatchpivot.model';
 import { MatchInviteDto } from 'src/dto/matchinvite.dto';
