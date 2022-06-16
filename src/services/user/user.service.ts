@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable no-var */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 import {
@@ -20,13 +22,14 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { MessageText } from 'src/constants/messages';
 import { UpdateUserDto } from 'src/dto/updateuser.dto';
+import { AuthUpdatePassRequestDto } from 'src/dto/authupdatepassrequest.dto';
 
 @Injectable()
 export class UserService {
   otpCode = '1234';
   constructor(
     @InjectRepository(UserModel)
-    private userRepository: Repository<UserModel>,
+    public userRepository: Repository<UserModel>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -166,21 +169,40 @@ export class UserService {
     }
   }
 
-    async UpdatePasswordUser(params: AuthUpdatePasswordRequest) {
-    const { email, old_password, new_password } = params;
-    const user = await this.userRepository.findOne({
-      email,
-      password: old_password,
-    });
-    if (user) {
-      const update = await this.userRepository.update(
-        { email },
-        { password: new_password },
-      );
-      return { user: update, response: 'Password reset successfully' };
-    } else {
-      throw new HttpException('Password not matched', HttpStatus.NOT_FOUND);
-    }
+    async UpdatePasswordUser(params: AuthUpdatePassRequestDto) {
+      const { email, old_password, new_password } = params;
+      const user = await this.userRepository.find({
+        where: {
+          email: email
+        }
+      });
+      const isMatch = await bcrypt.compare(old_password, user[0].password);
+      if(isMatch) {
+        const salt = 10
+        const passHashed = await bcrypt.hash(new_password, salt)
+        const update = await this.userRepository.update(
+          { email },
+          { password: passHashed },
+        );
+        return { response: 'Password reset successfully' };
+      }
+      throw new HttpException('Password not matched', HttpStatus.NOT_FOUND)
+      // await bcrypt.compare(old_password, user[0].password, async (err, result) => {
+      //   if(result) {
+      //     const salt = 10
+      //     const passHashed = await bcrypt.hash(new_password, salt)
+      //     const update = await this.userRepository.update(
+      //       { email },
+      //       { password: passHashed },
+      //     );
+      //     compResult = true
+      //   }
+      // });
+      // if(!compResult) {
+      //   return { response: 'Password reset successfully' }; 
+      // } else {
+      //   throw new HttpException('Password not matched', HttpStatus.NOT_FOUND)
+      // }
   }
 
   async getUserById(id: string) {

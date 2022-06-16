@@ -44,9 +44,8 @@ export class UserModel extends BaseModel {
     type: 'varchar',
     length: 128,
     nullable: true,
-    select: false,
+    select: true,
   })
-  @Exclude()
   password: string;
 
   @Column({

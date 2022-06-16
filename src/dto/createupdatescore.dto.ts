@@ -1,7 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
-import { IsInt } from 'class-validator';
+import { IsArray, IsInt } from 'class-validator';
 
+export class UserScore {
+
+    @IsInt()
+    public user_id: number;
+
+    @IsInt()
+    public score: number;
+
+}
 
 export class CreateUpdateScore {
 
@@ -9,12 +18,9 @@ export class CreateUpdateScore {
     public match_id: number;
 
     @IsInt()
-    public user_id: number;
-
-    @IsInt()
     public hole_id: number;
 
-    @IsInt()
-    public score: number;
+    @IsArray()
+    public userScore: UserScore[]
 
 }

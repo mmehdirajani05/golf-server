@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 import {
@@ -8,7 +9,7 @@ import {
   import { JwtService } from '@nestjs/jwt';
   import { InjectRepository } from '@nestjs/typeorm';
   import { UserModel } from 'src/models/user.model';
-  import { Repository } from 'typeorm';
+  import { Brackets, Repository } from 'typeorm';
   import * as bcrypt from 'bcrypt';
   import { MessageText } from 'src/constants/messages';
 import { MatchModel } from 'src/models/match.model';
@@ -47,36 +48,53 @@ import { max } from 'class-validator';
     ) {}
   
     async createUpdateScore(createUpdateScore) {
+        if(createUpdateScore.userScore.length > 4 || createUpdateScore.userScore.length < 1) {
+            return {
+                error: "Minimum 1 and Maximum 4 user scores can be updated at a time!"
+            }
+        }
         try {
-            const getUserTeam = await this.teamPivotRepository.find({
-                where: {
-                    user_id: createUpdateScore.user_id
-                }
-            })
-            createUpdateScore = {...createUpdateScore, team_id: getUserTeam[0].team_id}
-            const findScore = await this.scoreRepository.find({
-                where: {
-                    match_id: createUpdateScore.match_id,
-                    hole_id: createUpdateScore.hole_id,
-                    user_id: createUpdateScore.user_id
-                }
-            })
-            if(findScore.length) {
-                await this.scoreRepository.update(findScore[0].id, {score: createUpdateScore.score})
-                return {
-                    response: "Score Updated!" 
-                }
-            } else {
-                const createScore = this.scoreRepository.create(createUpdateScore)
-                await this.scoreRepository.save(createScore)
-                if(createScore) {
-                    return {
-                        response: "Created!"
+            for(let i = 0; i < createUpdateScore.userScore.length; i++) {
+                let userScore = createUpdateScore.userScore[i]
+
+                const getUserTeam = await this.teamPivotRepository.find({
+                    where: {
+                        user_id: userScore.user_id
                     }
+                })
+                // createUpdateScore = {...createUpdateScore, team_id: getUserTeam[0].team_id}
+                const findScore = await this.scoreRepository.find({
+                    where: {
+                        match_id: createUpdateScore.match_id,
+                        hole_id: createUpdateScore.hole_id,
+                        user_id: userScore.user_id
+                    }
+                })
+                if(findScore.length) {
+                    await this.scoreRepository.update(findScore[0].id, {score: userScore.score})
+                    // return {
+                    //     response: "Score Updated!" 
+                    // }
                 } else {
-                    response: "Failed!"
+                    const createScore = {
+                        match_id: createUpdateScore.match_id,
+                        hole_id: createUpdateScore.hole_id,
+                        user_id: userScore.user_id,
+                        score: userScore.score,
+                        team_id: getUserTeam[0].team_id
+                    }
+                    const createScoreRecord = this.scoreRepository.create(createScore)
+                    await this.scoreRepository.save(createScoreRecord)
+                    // if(createScore) {
+                    //     return {
+                    //         response: "Created!"
+                    //     }
+                    // } else {
+                    //     response: "Failed!"
+                    // }
                 }
             }
+            return 1;
         } catch(err) {
             return err;
         }
@@ -123,11 +141,16 @@ import { max } from 'class-validator';
             const getAllTeamMembersIds = getAllTeamMembers.map((v) => {
                 return +v.user_id
             })
-            // return getAllTeamMembersIds;
+            // Get Users Only
+
             const getUserAndScores = await this.userRepository.createQueryBuilder('u')
                                             .leftJoinAndSelect('u.scoreBoard', 'score')
-                                            .where("score.match_id = :matchId", { matchId: matchId})
-                                            .andWhere("score.user_id IN (:...players)", { players: getAllTeamMembersIds })
+                                            .where(new Brackets(qb => {
+                                                qb.where("score.match_id = :matchId", { matchId: matchId})
+                                                .andWhere("score.user_id IN (:...players)", { players: getAllTeamMembersIds })
+                                                .andWhere("score.hole_id = :holeId", { holeId: holeId })
+                                            }))
+                                            .orWhere("u.id IN (:...players)", { players: getAllTeamMembersIds })
                                             .getMany();
             return getUserAndScores;
         }
