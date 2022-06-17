@@ -17,6 +17,9 @@ export class AuthService {
   async Login(params: AuthLoginRequest) {
     return await this.userService.VerifyEmailPassword(params);
   }
+  async logout() {
+    return await this.userService.logout();
+  }
 
   async ForgotPassword(params: AuthForgotRequest) {
     return await this.userService.ForgotUser(params);

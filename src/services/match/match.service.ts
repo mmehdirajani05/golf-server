@@ -45,6 +45,7 @@ import { TeamPivotModel } from 'src/models/teampivot.model';
     ) {}
   
     async createMatch(match: CreateMatchDto) {
+        match.title = match.title.toLowerCase()
         try {
             const createMatch = this.matchRepository.create(match)
             await this.matchRepository.save(createMatch)

@@ -3,8 +3,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 import {
+  CACHE_MANAGER,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -23,11 +25,13 @@ import * as bcrypt from 'bcrypt';
 import { MessageText } from 'src/constants/messages';
 import { UpdateUserDto } from 'src/dto/updateuser.dto';
 import { AuthUpdatePassRequestDto } from 'src/dto/authupdatepassrequest.dto';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class UserService {
   otpCode = '1234';
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRepository(UserModel)
     public userRepository: Repository<UserModel>,
     private readonly jwtService: JwtService,
@@ -49,12 +53,19 @@ export class UserService {
 
     // create a access token
     const token = this.createSignedToken(user);
+    // Save user token in cache
+    await this.cacheManager.set('userToken', token);
 
     delete user.password
 
     const response = { ...user, token }
 
     return { data: response};
+  }
+
+  async logout() {
+    await this.cacheManager.del('userToken');
+    throw new HttpException('User logged out successfully!', HttpStatus.OK)
   }
 
   async CheckUserExistByEmail(params: { email: string }) {
@@ -98,8 +109,8 @@ export class UserService {
     const passwordHash = await this.createPasswordHash(params.password || '')
 
     const newUser = new UserModel();
-    newUser.first_name = params.first_name;
-    newUser.last_name = params.last_name;
+    newUser.first_name = params.first_name.toLowerCase();
+    newUser.last_name = params.last_name.toLowerCase();
     newUser.password = passwordHash;
     newUser.email = params.email;
     newUser.is_delete = false;
@@ -110,6 +121,7 @@ export class UserService {
     // create user and access token
     const newUserRes = await this.userRepository.save(newUser);
     const token = this.createSignedToken(newUserRes);
+    await this.cacheManager.set('userToken', token);
 
     if (newUserRes.password) {
       delete newUserRes.password;
@@ -246,24 +258,15 @@ export class UserService {
   }
 
   async searchUser(query) {
+    if (!query.length) return [];
     try {
-      if(query) {
-        const searchedUsers = await this.userRepository.createQueryBuilder('u')
-                                                      .where("u.first_name LIKE :first_name", {first_name: `%${query}%`})
-                                                      .orWhere("u.last_name LIKE :last_name", {last_name: `%${query}%`})
-                                                      .getMany();
-        if(searchedUsers.length) {
-          return searchedUsers;
-        } else {
-          return {
-            error: "Users not found!"
-          }
-        }
-      } else {
-        return {
-          error: "Users not found!"
-        }
-      }
+      const searchedUsers = await this.userRepository
+        .createQueryBuilder('u')
+        .where("u.first_name LIKE :first_name", {first_name: `%${query}%`})
+        .orWhere("u.last_name LIKE :last_name", {last_name: `%${query}%`})
+        .getMany();
+
+      return searchedUsers;
     } catch(err) {
       return err;
     }

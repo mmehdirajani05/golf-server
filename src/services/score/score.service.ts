@@ -141,18 +141,26 @@ import { max } from 'class-validator';
             const getAllTeamMembersIds = getAllTeamMembers.map((v) => {
                 return +v.user_id
             })
-            // Get Users Only
 
-            const getUserAndScores = await this.userRepository.createQueryBuilder('u')
-                                            .leftJoinAndSelect('u.scoreBoard', 'score')
-                                            .where(new Brackets(qb => {
-                                                qb.where("score.match_id = :matchId", { matchId: matchId})
-                                                .andWhere("score.user_id IN (:...players)", { players: getAllTeamMembersIds })
-                                                .andWhere("score.hole_id = :holeId", { holeId: holeId })
-                                            }))
-                                            .orWhere("u.id IN (:...players)", { players: getAllTeamMembersIds })
-                                            .getMany();
-            return getUserAndScores;
+            // Get Users Only
+            const getTeamUsersRecord = await this.userRepository.createQueryBuilder('u')
+                                                                .where("u.id IN (:...userId)", {userId: getAllTeamMembersIds})
+                                                                .getMany();
+            if(!getTeamUsersRecord.length) {
+                return []
+            }
+            for(let i = 0; i < getTeamUsersRecord.length; i++) {
+                const thisUser = getTeamUsersRecord[i];
+                const getUserScores = await this.scoreRepository.find({
+                    where: {
+                        user_id: thisUser.id,
+                        hole_id: holeId,
+                        match_id: matchId
+                    }
+                })
+                thisUser['score'] = getUserScores
+            }
+            return getTeamUsersRecord;
         }
     }
 
