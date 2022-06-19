@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
-import { Controller, Get, UseGuards, Request, Param, Post, Body } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Param, Post, Body, Query } from '@nestjs/common';
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
 import { CreateHolesDto } from 'src/dto/createholes.dto';
 import { CreateMatchDto } from 'src/dto/creatematch.dto';
@@ -53,5 +53,14 @@ export class MatchController {
     @Get('specific-hole/:holeId')
     getSpecificHole(@Param('holeId') holeId: number) {
       return this.matchService.getSpecificHole(holeId)
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/search')
+    async searchUserMatch(
+      @Request() req,
+      @Query('search_str') searchStr: string,
+    ) {
+      return  await this.matchService.searchUserMatch(searchStr, req.user)
     }
 }

@@ -17,6 +17,7 @@ import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
 import { HolesModel } from 'src/models/holes.model';
 import { TeamModel } from 'src/models/team.model';
 import { TeamPivotModel } from 'src/models/teampivot.model';
+import { MessageText } from 'src/constants/messages';
 
   
   @Injectable()
@@ -248,6 +249,45 @@ import { TeamPivotModel } from 'src/models/teampivot.model';
         } catch(err) {
             return err;
         }
+    }
+
+    async searchUserMatch(searchStr: string, userId: number) {
+        
+        const currDateTime = new Date()
+
+        try {
+            let prev_matches_query = this.matchRepository.createQueryBuilder('match')
+                .leftJoinAndSelect('match.matchPivot', 'user_match_pivot')
+                .select(['match'])
+                .where("user_match_pivot.user_id = :id", {id: userId})
+                .andWhere("match.datetime < :currDateTime", {currDateTime})
+        
+            let upcoming_matches_query = this.matchRepository.createQueryBuilder('match')
+                .leftJoinAndSelect('match.matchPivot', 'user_match_pivot')
+                .select(['match'])
+                .where("user_match_pivot.user_id = :id", {id: userId})
+                .andWhere("match.datetime > :currDateTime", {currDateTime})
+
+            if (searchStr !== "") {
+                console.log('in ', searchStr)
+                prev_matches_query.andWhere("match.title LIKE :title", {title: `%${searchStr}%`})
+                upcoming_matches_query.andWhere("match.title LIKE :title", {title: `%${searchStr}%`})
+            }
+
+
+            const prev_matches = await prev_matches_query.getMany()
+            const upcoming_matches = await upcoming_matches_query.getMany()
+            
+
+            return {prev_matches, upcoming_matches}
+        } catch{
+            throw new HttpException(
+                MessageText.serverError,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+              );
+        }
+
+        
     }
     
   }

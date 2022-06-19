@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { BaseModel } from './base.model';
+import { UserMatchPivotModel } from './usermatchpivot.model';
 
 @Entity({ name: 'match' })
 export class MatchModel extends BaseModel {
@@ -38,5 +39,8 @@ export class MatchModel extends BaseModel {
     nullable: true
   })
   matchfees: number;
+
+  @OneToMany(() => UserMatchPivotModel, x => x.match)
+  matchPivot: UserMatchPivotModel[];
 
 }

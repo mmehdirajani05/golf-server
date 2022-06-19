@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseModel } from './base.model';
+import { MatchModel } from './match.model';
 import { UserModel } from './user.model';
 
 export enum InviteStatus {
@@ -35,5 +36,9 @@ export class UserMatchPivotModel extends BaseModel {
   @ManyToOne(() => UserModel, emp => emp.matchPivot)
   @JoinColumn({name: "user_id", referencedColumnName: "id"})
   user: UserModel;
+
+  @ManyToOne(() => MatchModel, x => x.matchPivot)
+  @JoinColumn({name: "match_id", referencedColumnName: "id"})
+  match: MatchModel[];
 
 }
