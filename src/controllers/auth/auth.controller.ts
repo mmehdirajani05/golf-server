@@ -42,6 +42,11 @@ import { BaseController } from '../base/base.controller';
       return this.OKResponse(user)
     }
 
+    @Post('signout')
+    async userLogout() {
+      return await this.authService.logout();
+    }
+
     @Post('register')
     async register(@Body() params: AuthRegisterRequestDto) {
       const user =  await this.authService.Register(params);

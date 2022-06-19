@@ -36,4 +36,9 @@ export class ScoreController {
     getWinner(@Param('matchId') matchId: number) {
       return this.scoreService.getWinner(matchId)
     }
+
+    @Get('get-leaderboard/:userId/:matchId')
+    getLeaderBoard(@Param('userId') userId, @Param('matchId') matchId) {
+      return this.scoreService.getLeaderboard(userId, matchId);
+    }
 }

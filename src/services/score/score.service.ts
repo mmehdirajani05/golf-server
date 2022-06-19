@@ -21,6 +21,7 @@ import { HolesModel } from 'src/models/holes.model';
 import { ScoreboardModel } from 'src/models/scoreboard.model';
 import { TeamPivotModel } from 'src/models/teampivot.model';
 import { max } from 'class-validator';
+import { match } from 'assert';
 
   
   @Injectable()
@@ -141,18 +142,26 @@ import { max } from 'class-validator';
             const getAllTeamMembersIds = getAllTeamMembers.map((v) => {
                 return +v.user_id
             })
-            // Get Users Only
 
-            const getUserAndScores = await this.userRepository.createQueryBuilder('u')
-                                            .leftJoinAndSelect('u.scoreBoard', 'score')
-                                            .where(new Brackets(qb => {
-                                                qb.where("score.match_id = :matchId", { matchId: matchId})
-                                                .andWhere("score.user_id IN (:...players)", { players: getAllTeamMembersIds })
-                                                .andWhere("score.hole_id = :holeId", { holeId: holeId })
-                                            }))
-                                            .orWhere("u.id IN (:...players)", { players: getAllTeamMembersIds })
-                                            .getMany();
-            return getUserAndScores;
+            // Get Users Only
+            const getTeamUsersRecord = await this.userRepository.createQueryBuilder('u')
+                                                                .where("u.id IN (:...userId)", {userId: getAllTeamMembersIds})
+                                                                .getMany();
+            if(!getTeamUsersRecord.length) {
+                return []
+            }
+            for(let i = 0; i < getTeamUsersRecord.length; i++) {
+                const thisUser = getTeamUsersRecord[i];
+                const getUserScores = await this.scoreRepository.find({
+                    where: {
+                        user_id: thisUser.id,
+                        hole_id: holeId,
+                        match_id: matchId
+                    }
+                })
+                thisUser['score'] = getUserScores
+            }
+            return getTeamUsersRecord;
         }
     }
 
@@ -191,6 +200,37 @@ import { max } from 'class-validator';
         } catch(err) {
             return err;
         }
+    }
+
+    async getLeaderboard(userId, matchId) {
+        const getUserTeam = await this.teamPivotRepository.find({
+            where: {
+                match_id: matchId,
+                user_id: userId
+            }
+        })
+        if(!getUserTeam.length) {
+            throw new HttpException('User got no team!', HttpStatus.NOT_FOUND)
+        }
+        const getTeamMembers = await this.teamPivotRepository.find({
+            select: ['user_id'],
+            where: {
+                team_id: getUserTeam[0].team_id,
+                match_id: matchId
+            }
+        })
+        const getAllTeamMembersIds = getTeamMembers.map((v) => {
+            return +v.user_id
+        })
+        const getLeaderBoardScore = await this.userRepository.createQueryBuilder("u")
+                                                .leftJoinAndSelect('u.scoreBoard', 'score')
+                                                .where("score.user_id IN (:...userId)", {userId: getAllTeamMembersIds})
+                                                .andWhere("score.match_id = :matchId", {matchId: matchId})
+                                                .select("u.*")
+                                                .addSelect("SUM(score.score)","score")
+                                                .groupBy("u.id")
+                                                .getRawMany();
+        return getLeaderBoardScore;
     }
     
   }

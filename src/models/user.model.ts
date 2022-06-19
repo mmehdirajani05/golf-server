@@ -4,6 +4,7 @@ import { Exclude } from 'class-transformer';
 import { BaseModel } from './base.model';
 import { UserMatchPivotModel } from './usermatchpivot.model';
 import { ScoreboardModel } from './scoreboard.model';
+import { TeamPivotModel } from './teampivot.model';
 
 @Entity({ name: 'user' })
 export class UserModel extends BaseModel {
@@ -84,4 +85,7 @@ export class UserModel extends BaseModel {
 
   @OneToMany(() => UserMatchPivotModel, x => x.user)
   matchPivot: UserMatchPivotModel[];
+
+  @OneToMany(() => TeamPivotModel, x => x.user)
+  teams: TeamPivotModel[];
 }

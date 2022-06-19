@@ -24,6 +24,7 @@ import { HolesModel } from './models/holes.model';
 import { ScoreboardModel } from './models/scoreboard.model';
 import { ScoreController } from './controllers/score/score.controller';
 import { ScoreService } from './services/score/score.service';
+import { CacheModule } from '@nestjs/common';
 @Module({
   imports: [
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
@@ -39,6 +40,7 @@ import { ScoreService } from './services/score/score.service';
         expiresIn: process.env.EXPIRESIN,
       },
     }),
+    CacheModule.register(),
   ],
   controllers: [AppController, AuthController, UserController, MatchController, ScoreController],
   providers: [AppService, UserService, AuthService, JwtStrategy, GoogleStrategy, MatchService, ScoreService],
