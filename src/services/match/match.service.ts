@@ -250,6 +250,30 @@ import { TeamPivotModel } from 'src/models/teampivot.model';
             return err;
         }
     }
+
+    async getMatchTeamDetails(matchId) {
+        const teamDetails = await this.teamsRepository.find({
+            where: {
+                match_id: matchId
+            }
+        })
+        if(!teamDetails.length) {
+            throw new HttpException('No teams found for this match!', HttpStatus.NOT_FOUND)
+        }
+        return teamDetails;
+    }
+
+    async getMatchTeams(matchId) {
+        const getTeams = await this.userRepository.createQueryBuilder('user')
+                                                .leftJoinAndSelect('user.teams', 'team')
+                                                .select(['user', 'team.team_id'])
+                                                .where("team.match_id = :matchId", {matchId: matchId})
+                                                .getMany()
+        if(!getTeams.length) {
+            return []
+        }
+        return getTeams;
+    }
     
   }
     
