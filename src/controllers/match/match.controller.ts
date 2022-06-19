@@ -6,6 +6,7 @@ import { CreateHolesDto } from 'src/dto/createholes.dto';
 import { CreateMatchDto } from 'src/dto/creatematch.dto';
 import { MatchInviteDto } from 'src/dto/matchinvite.dto';
 import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
+import { updateTeamCaptinDto } from 'src/dto/updateteamcaptain.dto';
 import { JwtAuthGuard } from 'src/services/auth/jwt-auth.guard';
 import { MatchService } from 'src/services/match/match.service';
 import { UserService } from 'src/services/user/user.service';
@@ -63,5 +64,10 @@ export class MatchController {
     @Get('get-match-teams/:matchId')
     getMatchTeams(@Param('matchId') matchId: number) {
       return this.matchService.getMatchTeams(matchId)
+    }
+
+    @Post('update-captain')
+    updateTeamCaptain(@Body() updateTeamCaptinDto: updateTeamCaptinDto) {
+      return this.matchService.updateTeamCaptain(updateTeamCaptinDto)
     }
 }

@@ -274,6 +274,13 @@ import { TeamPivotModel } from 'src/models/teampivot.model';
         }
         return getTeams;
     }
+
+    async updateTeamCaptain(updateTeamCaptinDto) {
+        await this.teamsRepository.update(updateTeamCaptinDto.team_id, {
+            captain: updateTeamCaptinDto.captain_id
+        })
+        throw new HttpException('Success!', HttpStatus.OK)
+    }
     
   }
     
