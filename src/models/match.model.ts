@@ -4,6 +4,11 @@ import { Exclude } from 'class-transformer';
 import { BaseModel } from './base.model';
 import { UserMatchPivotModel } from './usermatchpivot.model';
 
+export enum MatchStatus {
+  COMPLETE =  'complete',
+  PENDING =  'pending'
+}
+
 @Entity({ name: 'match' })
 export class MatchModel extends BaseModel {
   @Column({
@@ -39,6 +44,13 @@ export class MatchModel extends BaseModel {
     nullable: true
   })
   matchfees: number;
+
+  @Column({
+    name: 'status',
+    nullable: false,
+    default: MatchStatus.PENDING
+  })
+  status: string;
 
   @OneToMany(() => UserMatchPivotModel, x => x.match)
   matchPivot: UserMatchPivotModel[];

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
-import { IsArray, IsInt } from 'class-validator';
+import { bool } from 'aws-sdk/clients/signer';
+import { IsArray, IsBoolean, IsInt, IsNotEmpty } from 'class-validator';
 
 export class updateTeamCaptinDto {
 
@@ -9,5 +10,17 @@ export class updateTeamCaptinDto {
 
     @IsInt()
     public captain_id: number;
+
+}
+
+export class markAsCompleteDto {
+
+    @IsNotEmpty()
+    @IsInt()
+    public match_id: number;
+
+    @IsNotEmpty()
+    @IsBoolean()
+    public is_complete: boolean;
 
 }

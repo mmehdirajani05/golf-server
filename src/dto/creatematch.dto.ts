@@ -1,24 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsArray, IsDate, IsDefined, IsInt, IsString } from 'class-validator';
-
-
+import { IsDate, IsInt, IsNotEmpty, IsString } from 'class-validator';
 export class CreateMatchDto {
 
+    @IsNotEmpty()
     @IsString()
     public title: string;
 
+    @IsNotEmpty()
     @IsDate()
     public datetime: Date;
 
+    @IsNotEmpty()
     @IsString()
     public location: string;
 
+    @IsNotEmpty()
     @IsInt()
     public created_by: number;
 
+    @IsNotEmpty()
     @IsInt()
     public matchfees: number;
 
