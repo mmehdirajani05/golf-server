@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 import {
@@ -88,6 +89,16 @@ import { MessageText } from 'src/constants/messages';
                         }
                         const createInvitedUser = this.userMatchPivotRepository.create(userInviteRecordJson)
                         await this.userMatchPivotRepository.save(createInvitedUser)
+                        
+                        // Admitting user hardcode to match
+                        const admitUserToMatch = {
+                            match_id: inviteDetails.match_id,
+                            user_id: inviteDetails.user_ids[i],
+                            status: 'admitted'
+                        }
+                        this.updateUserInviteStatus(admitUserToMatch)
+                        // Admitting user hardcode to match ends here
+                        
                         if(createInvitedUser) {
                             // TODO: Send match invitation to users from here
 

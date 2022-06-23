@@ -162,6 +162,8 @@ import { match } from 'assert';
                 thisUser['score'] = getUserScores
             }
             return getTeamUsersRecord;
+        } else {
+            throw new HttpException('This match needs atleast 16 players to start.', HttpStatus.BAD_REQUEST)
         }
     }
 
