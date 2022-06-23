@@ -106,7 +106,7 @@ import { match } from 'assert';
             const scores = await this.scoreRepository.find({
                 relations: ['user', 'hole'],
                 where: {
-                    match_id: matchScoreDto.match_id
+                    match_id: matchScoreDto
                 }
             })
             if(scores.length) {

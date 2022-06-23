@@ -21,9 +21,9 @@ export class ScoreController {
       return this.scoreService.createUpdateScore(createUpdateScore)
     }
 
-    @Post('get-match-scores')
+    @Get('get-match-scores/:matchId')
     @ApiProperty({description: "Getting match scores for each player with respect to each hole"})
-    getMatchScores(@Body() matchScoreDto: MatchScoreDto) {
+    getMatchScores(@Param('matchId') matchScoreDto) {
       return this.scoreService.getMatchScores(matchScoreDto)
     }
 
