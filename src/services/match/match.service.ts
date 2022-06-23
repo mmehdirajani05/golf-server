@@ -9,7 +9,7 @@ import {
   import { InjectRepository } from '@nestjs/typeorm';
   import { UserModel } from 'src/models/user.model';
   import { Repository } from 'typeorm';
-import { MatchModel } from 'src/models/match.model';
+import { MatchModel, MatchStatus } from 'src/models/match.model';
 import { UserMatchPivotModel } from 'src/models/usermatchpivot.model';
 import { MatchInviteDto } from 'src/dto/matchinvite.dto';
 import { CreateMatchDto } from 'src/dto/creatematch.dto';
@@ -17,6 +17,7 @@ import { UpdateUserInviteStatusDto } from 'src/dto/updateinvitestatus.dto';
 import { HolesModel } from 'src/models/holes.model';
 import { TeamModel } from 'src/models/team.model';
 import { TeamPivotModel } from 'src/models/teampivot.model';
+import { MessageText } from 'src/constants/messages';
 
   
   @Injectable()
@@ -49,6 +50,8 @@ import { TeamPivotModel } from 'src/models/teampivot.model';
         try {
             const createMatch = this.matchRepository.create(match)
             await this.matchRepository.save(createMatch)
+            await this.sendInvite({match_id: +createMatch.id, user_ids: [createMatch.createdby]}) // mkae owner part of match
+            
             if(createMatch) {
                 return {
                     res: createMatch
@@ -251,6 +254,45 @@ import { TeamPivotModel } from 'src/models/teampivot.model';
         }
     }
 
+    async searchUserMatch(searchStr: string, userId: number) {
+        
+        const currDateTime = new Date()
+
+        try {
+            let prev_matches_query = this.matchRepository.createQueryBuilder('match')
+                .leftJoinAndSelect('match.matchPivot', 'user_match_pivot')
+                .select(['match'])
+                .where("user_match_pivot.user_id = :id", {id: userId})
+                .andWhere("match.datetime < :currDateTime", {currDateTime})
+                .orWhere("match.status = :status", {status: MatchStatus.COMPLETE})
+        
+            let upcoming_matches_query = this.matchRepository.createQueryBuilder('match')
+                .leftJoinAndSelect('match.matchPivot', 'user_match_pivot')
+                .select(['match'])
+                .where("user_match_pivot.user_id = :id", {id: userId})
+                .andWhere("match.datetime > :currDateTime", {currDateTime})
+                .andWhere("match.status = :status", {status: MatchStatus.PENDING})
+
+            if (searchStr !== "") {
+                prev_matches_query.andWhere("match.title LIKE :title", {title: `%${searchStr}%`})
+                upcoming_matches_query.andWhere("match.title LIKE :title", {title: `%${searchStr}%`})
+            }
+
+
+            const complete_matches = await prev_matches_query.getMany()
+            const upcoming_matches = await upcoming_matches_query.getMany()
+            
+
+            return {complete_matches, upcoming_matches}
+        } catch{
+            throw new HttpException(
+                MessageText.serverError,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+              );
+        }
+    }
+
+        
     async getMatchTeamDetails(matchId) {
         const teamDetails = await this.teamsRepository.find({
             where: {
@@ -279,7 +321,20 @@ import { TeamPivotModel } from 'src/models/teampivot.model';
         await this.teamsRepository.update(updateTeamCaptinDto.team_id, {
             captain: updateTeamCaptinDto.captain_id
         })
-        throw new HttpException('Success!', HttpStatus.OK)
+
+        return {
+            response: MessageText.success
+        }
+    }
+
+    async markAsComplete(markAsCompleteDTO) {
+        await this.matchRepository.update(markAsCompleteDTO.match_id, {
+            status: markAsCompleteDTO.is_complete ? MatchStatus.COMPLETE : MatchStatus.PENDING
+        })
+
+        return {
+            response: MessageText.success
+        }
     }
     
   }

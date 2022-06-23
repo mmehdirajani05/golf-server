@@ -4,5 +4,6 @@ export const MessageText =  {
   invalidEmail: 'Invalid email',
   invalidCode: 'Invalid code',
   passwordSuccess: 'Password updated successfully',
-  userExist: 'User already exist'
+  userExist: 'User already exist',
+  serverError: 'Internal server error'
 }
