@@ -29,4 +29,9 @@ export class UserController {
   async searchUser(@Query('search_str') query) {
     return await this.userService.searchUser(query);
   }
+
+  @Get('check-user-status/:matchId')
+  async checkUserStatus(@Param('matchId') matchId) {
+    return await this.userService.checkUserStatus(matchId);
+  }
 }
