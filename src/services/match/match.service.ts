@@ -9,7 +9,7 @@ import {
   import { JwtService } from '@nestjs/jwt';
   import { InjectRepository } from '@nestjs/typeorm';
   import { UserModel } from 'src/models/user.model';
-  import { Repository } from 'typeorm';
+  import { Brackets, Repository } from 'typeorm';
 import { MatchModel, MatchStatus } from 'src/models/match.model';
 import { UserMatchPivotModel } from 'src/models/usermatchpivot.model';
 import { MatchInviteDto } from 'src/dto/matchinvite.dto';
@@ -98,7 +98,7 @@ import { MessageText } from 'src/constants/messages';
                         }
                         this.updateUserInviteStatus(admitUserToMatch)
                         // Admitting user hardcode to match ends here
-                        
+
                         if(createInvitedUser) {
                             // TODO: Send match invitation to users from here
 
@@ -267,21 +267,25 @@ import { MessageText } from 'src/constants/messages';
 
     async searchUserMatch(searchStr: string, userId: number) {
         
-        const currDateTime = new Date()
-
+        const currDateTime = (new Date()).toISOString().split("T")
+        let alterdDateTime = currDateTime.join(" ")
+        // return alterdDateTime;
         try {
             let prev_matches_query = this.matchRepository.createQueryBuilder('match')
                 .leftJoinAndSelect('match.matchPivot', 'user_match_pivot')
                 .select(['match'])
                 .where("user_match_pivot.user_id = :id", {id: userId})
-                .andWhere("match.datetime < :currDateTime", {currDateTime})
-                .orWhere("match.status = :status", {status: MatchStatus.COMPLETE})
+                .andWhere(new Brackets(qb => {
+                    qb.where("match.datetime < :alterdDateTime", {alterdDateTime})
+                        .orWhere("match.status = :status", {status: MatchStatus.COMPLETE})
+                  }))
+                
         
             let upcoming_matches_query = this.matchRepository.createQueryBuilder('match')
                 .leftJoinAndSelect('match.matchPivot', 'user_match_pivot')
                 .select(['match'])
                 .where("user_match_pivot.user_id = :id", {id: userId})
-                .andWhere("match.datetime > :currDateTime", {currDateTime})
+                .andWhere("match.datetime > :alterdDateTime", {alterdDateTime})
                 .andWhere("match.status = :status", {status: MatchStatus.PENDING})
 
             if (searchStr !== "") {
@@ -292,7 +296,6 @@ import { MessageText } from 'src/constants/messages';
 
             const complete_matches = await prev_matches_query.getMany()
             const upcoming_matches = await upcoming_matches_query.getMany()
-            
 
             return {complete_matches, upcoming_matches}
         } catch{
