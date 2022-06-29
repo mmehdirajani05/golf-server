@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Body, Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AddUserDevice } from 'src/dto/user-details.dto';
@@ -16,23 +18,22 @@ export class UserDetailsController extends BaseController {
     super()
   }
 
-    // @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard)
     @Post('')
     async AddUserDevice(
       @Body() addUserDetails: AddUserDevice,
       @Request() req
     ) {
-      const data  = await  this.userDetailsService.addUserDeviceDetails(addUserDetails, 2)
+      const data  = await  this.userDetailsService.addUserDeviceDetails(addUserDetails, req.user)
       return this.OKResponse(data)
     }
 
-    // @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard)
     @Get('')
     async GetUserDevice(
       @Request() req
     ) {
-      const data  = await this.userDetailsService.getUserDeviceDetails(2)
-      console.log('data', data)
+      const data  = await this.userDetailsService.getUserDeviceDetails(req.user)
       return this.OKResponse(data)
     }
 }
