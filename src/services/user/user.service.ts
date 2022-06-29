@@ -26,14 +26,20 @@ import { MessageText } from 'src/constants/messages';
 import { UpdateUserDto } from 'src/dto/updateuser.dto';
 import { AuthUpdatePassRequestDto } from 'src/dto/authupdatepassrequest.dto';
 import { Cache } from 'cache-manager';
+import { UserMatchPivotModel } from 'src/models/usermatchpivot.model';
 
 @Injectable()
 export class UserService {
   otpCode = '1234';
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+
     @InjectRepository(UserModel)
     public userRepository: Repository<UserModel>,
+
+    @InjectRepository(UserMatchPivotModel)
+    public userMatchRepository: Repository<UserMatchPivotModel>,
+
     private readonly jwtService: JwtService,
   ) {}
 
@@ -270,6 +276,22 @@ export class UserService {
     } catch(err) {
       return err;
     }
+  }
+
+  async checkUserStatus(matchId) {
+    let getUserDetails = await this.userMatchRepository.find({
+      relations: ['user'],
+      where: {
+        match_id: matchId
+      }
+    })
+
+    if(!getUserDetails.length) {
+      throw new HttpException('No user found!', HttpStatus.NOT_FOUND)
+    }
+
+    return getUserDetails;
+
   }
 
   // async addAvatar(userId: string, imageBuffer: Buffer, filename: string) {

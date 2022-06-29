@@ -106,7 +106,7 @@ import { match } from 'assert';
             const scores = await this.scoreRepository.find({
                 relations: ['user', 'hole'],
                 where: {
-                    match_id: matchScoreDto.match_id
+                    match_id: matchScoreDto
                 }
             })
             if(scores.length) {
@@ -162,6 +162,8 @@ import { match } from 'assert';
                 thisUser['score'] = getUserScores
             }
             return getTeamUsersRecord;
+        } else {
+            throw new HttpException('This match needs atleast 16 players to start.', HttpStatus.BAD_REQUEST)
         }
     }
 

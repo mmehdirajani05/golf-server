@@ -32,6 +32,12 @@ export class UserController  {
     return await this.userService.searchUser(query);
   }
 
+  @Get('check-user-status/:matchId')
+  async checkUserStatus(@Param('matchId') matchId) {
+    return await this.userService.checkUserStatus(matchId);
+  }
+
+  //sample call to test notification
   @Get('notification')
   async matchNotification() {
     return await this.notification.sendMatchInviteNotification('eBkpxEhTTTCoeE4jZ9ikMl:APA91bH_uqIKXT8otcF_TkE_WfIOc-_zB4jiuOIqUso288j8DfyTY73gZ2yPC8FJkbQh6COQQ5iZc5OOMh0ruflWiLFBfub55p9OSJ52uHmZFf6tMgoRTGKIdpFSUyvf1JQCwXSuJ26_');
