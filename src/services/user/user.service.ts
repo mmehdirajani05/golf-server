@@ -27,6 +27,7 @@ import { UpdateUserDto } from 'src/dto/updateuser.dto';
 import { AuthUpdatePassRequestDto } from 'src/dto/authupdatepassrequest.dto';
 import { Cache } from 'cache-manager';
 import { UserMatchPivotModel } from 'src/models/usermatchpivot.model';
+import { NotificationsModel } from 'src/models/notifications.model';
 
 @Injectable()
 export class UserService {
@@ -39,6 +40,9 @@ export class UserService {
 
     @InjectRepository(UserMatchPivotModel)
     public userMatchRepository: Repository<UserMatchPivotModel>,
+
+    @InjectRepository(NotificationsModel)
+    public notificationsRepository: Repository<NotificationsModel>,
 
     private readonly jwtService: JwtService,
   ) {}
@@ -292,6 +296,20 @@ export class UserService {
 
     return getUserDetails;
 
+  }
+
+  async getNotifications(userId) {
+    let notifications = await this.notificationsRepository.find({
+      relations: ['match'],
+      where: {
+        recipient_id: userId
+      }
+    })
+    if(notifications.length) {
+      return notifications
+    } else {
+      throw new HttpException('No notifications found.', HttpStatus.NOT_FOUND);
+    }
   }
 
   // async addAvatar(userId: string, imageBuffer: Buffer, filename: string) {

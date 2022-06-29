@@ -28,10 +28,12 @@ import { CacheModule } from '@nestjs/common';
 import { UserDetailsModel } from './models/user-details.model';
 import { UserDetailsService } from './services/user-details/user-details.service';
 import { UserDetailsController } from './controllers/user-details/user-details.controller';
+import { NotificationService } from './services/notification/notification.service';
+import { NotificationsModel } from './models/notifications.model';
 @Module({
   imports: [
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
-    TypeOrmModule.forFeature([UserModel, MatchModel, UserMatchPivotModel, TeamModel, TeamPivotModel, HolesModel, ScoreboardModel, UserDetailsModel]),
+    TypeOrmModule.forFeature([UserModel, MatchModel, UserMatchPivotModel, TeamModel, TeamPivotModel, HolesModel, ScoreboardModel, UserDetailsModel, NotificationsModel]),
     PassportModule.register({
       defaultStrategy: 'jwt',
       property: 'user',
@@ -46,6 +48,6 @@ import { UserDetailsController } from './controllers/user-details/user-details.c
     CacheModule.register(),
   ],
   controllers: [AppController, AuthController, UserController, MatchController, ScoreController, UserDetailsController],
-  providers: [AppService, UserService, AuthService, JwtStrategy, GoogleStrategy, MatchService, ScoreService, UserDetailsService],
+  providers: [AppService, UserService, AuthService, JwtStrategy, GoogleStrategy, MatchService, ScoreService, UserDetailsService, NotificationService],
 })
 export class AppModule {}

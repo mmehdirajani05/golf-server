@@ -3,6 +3,7 @@ import { Entity, Column, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { BaseModel } from './base.model';
 import { UserMatchPivotModel } from './usermatchpivot.model';
+import { NotificationsModel } from './notifications.model';
 
 export enum MatchStatus {
   COMPLETE =  'complete',
@@ -54,5 +55,8 @@ export class MatchModel extends BaseModel {
 
   @OneToMany(() => UserMatchPivotModel, x => x.match)
   matchPivot: UserMatchPivotModel[];
+
+  @OneToMany(() => NotificationsModel, x => x.match)
+  notification: NotificationsModel[];
 
 }

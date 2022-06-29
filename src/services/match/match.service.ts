@@ -19,6 +19,9 @@ import { HolesModel } from 'src/models/holes.model';
 import { TeamModel } from 'src/models/team.model';
 import { TeamPivotModel } from 'src/models/teampivot.model';
 import { MessageText } from 'src/constants/messages';
+import { NotificationsModel } from 'src/models/notifications.model';
+import { UserDetailsModel } from 'src/models/user-details.model';
+import { NotificationService } from '../notification/notification.service';
 
   
   @Injectable()
@@ -43,15 +46,22 @@ import { MessageText } from 'src/constants/messages';
       @InjectRepository(TeamPivotModel)
       private teamPivotRepository: Repository<TeamPivotModel>,
 
+      @InjectRepository(NotificationsModel)
+      private notificationRepository: Repository<NotificationsModel>,
+
+      @InjectRepository(UserDetailsModel)
+      private userDetailsRepository: Repository<UserDetailsModel>,
+
       private readonly jwtService: JwtService,
+      private notificationsService: NotificationService,
     ) {}
   
-    async createMatch(match: CreateMatchDto) {
+    async createMatch(userId, match: CreateMatchDto) {
         match.title = match.title.toLowerCase()
         try {
             const createMatch = this.matchRepository.create(match)
             await this.matchRepository.save(createMatch)
-            await this.sendInvite({match_id: +createMatch.id, user_ids: [createMatch.createdby]}) // mkae owner part of match
+            await this.sendInvite(userId, {match_id: +createMatch.id, user_ids: [createMatch.createdby]}) // mkae owner part of match
             
             if(createMatch) {
                 return {
@@ -67,7 +77,7 @@ import { MessageText } from 'src/constants/messages';
         }
     }
 
-    async sendInvite(inviteDetails: MatchInviteDto) {
+    async sendInvite(userId: number, inviteDetails: MatchInviteDto) {
         try {
             const getInvitedUsers = await this.userMatchPivotRepository.find({
                 where: {
@@ -75,6 +85,8 @@ import { MessageText } from 'src/constants/messages';
                 }
             })
             if(getInvitedUsers.length < 16) {
+                let createNotificationsRecord = [];
+                let FCMTokens = [];
                 for(let i = 0; i < inviteDetails.user_ids.length; i++) {
                     const checkIfInviteSentAlready = await this.userMatchPivotRepository.find({
                         where: {
@@ -99,12 +111,34 @@ import { MessageText } from 'src/constants/messages';
                         this.updateUserInviteStatus(admitUserToMatch)
                         // Admitting user hardcode to match ends here
 
-                        if(createInvitedUser) {
-                            // TODO: Send match invitation to users from here
-
+                        // Save notfications starts here
+                        let notificationObj = {
+                            match_id: inviteDetails.match_id,
+                            sender_id: userId,
+                            recipient_id: inviteDetails.user_ids[i],
+                            message: MessageText.matchInvite
                         }
+                        createNotificationsRecord.push(this.notificationRepository.create(notificationObj))
+                        // Save notfications ends here
+
+                        // Get FCM tokens from user details here
+                        let getTokens = await this.userDetailsRepository.find({
+                            user_id: inviteDetails.user_ids[i]
+                        })
+                        if(getTokens.length) {
+                            FCMTokens.push(getTokens[0].fcm_id)
+                        }
+                        // Get FCM tokens from user details ends here
                     }
                 }
+                // Save notifications records those are created and saved in createNotificationsRecord array
+                await this.notificationRepository.save(createNotificationsRecord);
+
+                // Send notifications
+                if(FCMTokens.length) {
+                    await this.notificationsService.sendMatchInviteNotification(FCMTokens)
+                }
+
                 return {
                     response: 'Success!'
                 }

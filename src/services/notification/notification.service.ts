@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { MessageText } from 'src/constants/messages';
@@ -13,6 +14,11 @@ export class NotificationService {
         title: MessageText.matchHeader
       },
     }
-    await admin.messaging().sendToDevice(fcmToken, payload);
+    try {
+      const res = await admin.messaging().sendToDevice(fcmToken, payload);
+      console.log(res.results)
+    } catch(err) {
+      return err;
+    }
   }
 }

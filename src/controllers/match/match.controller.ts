@@ -21,13 +21,14 @@ export class MatchController {
     
     @UseGuards(JwtAuthGuard)
     @Post('create')
-    createMatch(@Body() createMatch: CreateMatchDto) {
-      return this.matchService.createMatch(createMatch)
+    createMatch(@Request() req, @Body() createMatch: CreateMatchDto) {
+      return this.matchService.createMatch(req.user, createMatch)
     }
     
+    @UseGuards(JwtAuthGuard)
     @Post('send-invite')
-    sendInvite(@Body() inviteDetails: MatchInviteDto) {
-      return this.matchService.sendInvite(inviteDetails)
+    async sendInvite(@Request() req, @Body() inviteDetails: MatchInviteDto) {
+      return await this.matchService.sendInvite(req.user, inviteDetails)
     }
 
     @ApiProperty({description: 'Update user status and check if match users are completed, if so, organize teams'})

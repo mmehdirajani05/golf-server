@@ -2,6 +2,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { HolesModel } from 'src/models/holes.model';
 import { MatchModel } from 'src/models/match.model';
+import { NotificationsModel } from 'src/models/notifications.model';
 import { ScoreboardModel } from 'src/models/scoreboard.model';
 import { TeamModel } from 'src/models/team.model';
 import { TeamPivotModel } from 'src/models/teampivot.model';
@@ -55,7 +56,7 @@ class ConfigService {
           rejectUnauthorized: false,
         },
       },
-      entities: [UserModel, MatchModel, UserMatchPivotModel, TeamModel, TeamPivotModel, HolesModel, ScoreboardModel, UserDetailsModel],
+      entities: [UserModel, MatchModel, UserMatchPivotModel, TeamModel, TeamPivotModel, HolesModel, ScoreboardModel, UserDetailsModel, NotificationsModel],
     };
   }
 }
