@@ -5,5 +5,7 @@ export const MessageText =  {
   invalidCode: 'Invalid code',
   passwordSuccess: 'Password updated successfully',
   userExist: 'User already exist',
-  serverError: 'Internal server error'
+  serverError: 'Internal server error',
+  matchInvite: 'You are now the part of golf match',
+  matchHeader: 'Match notification'
 }

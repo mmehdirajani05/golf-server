@@ -25,10 +25,13 @@ import { ScoreboardModel } from './models/scoreboard.model';
 import { ScoreController } from './controllers/score/score.controller';
 import { ScoreService } from './services/score/score.service';
 import { CacheModule } from '@nestjs/common';
+import { UserDetailsModel } from './models/user-details.model';
+import { UserDetailsService } from './services/user-details/user-details.service';
+import { UserDetailsController } from './controllers/user-details/user-details.controller';
 @Module({
   imports: [
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
-    TypeOrmModule.forFeature([UserModel, MatchModel, UserMatchPivotModel, TeamModel, TeamPivotModel, HolesModel, ScoreboardModel]),
+    TypeOrmModule.forFeature([UserModel, MatchModel, UserMatchPivotModel, TeamModel, TeamPivotModel, HolesModel, ScoreboardModel, UserDetailsModel]),
     PassportModule.register({
       defaultStrategy: 'jwt',
       property: 'user',
@@ -42,7 +45,7 @@ import { CacheModule } from '@nestjs/common';
     }),
     CacheModule.register(),
   ],
-  controllers: [AppController, AuthController, UserController, MatchController, ScoreController],
-  providers: [AppService, UserService, AuthService, JwtStrategy, GoogleStrategy, MatchService, ScoreService],
+  controllers: [AppController, AuthController, UserController, MatchController, ScoreController, UserDetailsController],
+  providers: [AppService, UserService, AuthService, JwtStrategy, GoogleStrategy, MatchService, ScoreService, UserDetailsService],
 })
 export class AppModule {}

@@ -5,6 +5,7 @@ import { MatchModel } from 'src/models/match.model';
 import { ScoreboardModel } from 'src/models/scoreboard.model';
 import { TeamModel } from 'src/models/team.model';
 import { TeamPivotModel } from 'src/models/teampivot.model';
+import { UserDetailsModel } from 'src/models/user-details.model';
 import { UserModel } from 'src/models/user.model';
 import { UserMatchPivotModel } from 'src/models/usermatchpivot.model';
 
@@ -54,7 +55,7 @@ class ConfigService {
           rejectUnauthorized: false,
         },
       },
-      entities: [UserModel, MatchModel, UserMatchPivotModel, TeamModel, TeamPivotModel, HolesModel, ScoreboardModel],
+      entities: [UserModel, MatchModel, UserMatchPivotModel, TeamModel, TeamPivotModel, HolesModel, ScoreboardModel, UserDetailsModel],
     };
   }
 }
