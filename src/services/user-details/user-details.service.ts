@@ -26,7 +26,7 @@ export class UserDetailsService {
         ...params,
         user_id: userId
       })
-
+      await this.userDeviceRepository.save(device);
       return  {data: device}
 
     } catch {
