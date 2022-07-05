@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
   import {
     Body,
@@ -14,6 +15,7 @@ import { AuthRegisterRequestDto } from 'src/dto/authregisterrequest.dto';
 import { AuthResetPassRequestDto } from 'src/dto/authresetpassrequest.dto';
 import { AuthUpdatePassRequestDto } from 'src/dto/authupdatepassrequest.dto';
 import { AuthVerifyRequestDto } from 'src/dto/authverifyrequest.dto';
+import { SocialLoginDto } from 'src/dto/sociallogin.dto';
   import { 
     AuthUpdatePasswordRequest, 
     AuthLoginRequest,
@@ -75,6 +77,12 @@ import { BaseController } from '../base/base.controller';
       const data =  await this.authService.UpdatePassword(params);
       return this.OKResponse(data)
     }
+
+    // @Post('social-login')
+    // async socialLogin(@Body() params: SocialLoginDto ) {
+    //   const data =  await this.authService.socialLogin(params);
+    //   return this.OKResponse(data)
+    // }
 
   }
   

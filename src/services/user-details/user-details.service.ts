@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MessageText } from 'src/constants/messages';
@@ -18,6 +19,7 @@ export class UserDetailsService {
     const userDevice = await this.userDeviceRepository.findOne({user_id: userId})
 
     if (userDevice) {
+      await this.userDeviceRepository.update(userDevice.id, params);
       return 
     }
     

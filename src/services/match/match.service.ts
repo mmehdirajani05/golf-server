@@ -136,6 +136,7 @@ import { NotificationService } from '../notification/notification.service';
 
                 // Send notifications
                 if(FCMTokens.length) {
+                    console.log(FCMTokens)
                     await this.notificationsService.sendMatchInviteNotification(FCMTokens)
                 }
 

@@ -46,6 +46,6 @@ export class UserController  {
   //sample call to test notification
   @Get('notification')
   async matchNotification() {
-    return await this.notification.sendMatchInviteNotification(['dTR8_e_sr_1qV69FgJN7WW:APA91bEupybMmyuyKnj3s_GnVD0BfsjtHSyUEv1uEel5bhEpWMJOt-1kB6yyeoSguhWXqFUidyDhaOHmNQsWuJiSfe40GDP3uGQfXRyvIGupwUzeo7Pv0FdclzCr-qs42XkvnWs6I3uR']);
+    return await this.notification.sendMatchInviteNotification(['cUwcmd8VTiCGXRe9DazI1l:APA91bE1lULoRzeKSkcZjZwMAIieiFABRVcNw9gXFNAGOdMpNzfLW7pX3e5qgfkTyEBriIVOkdeUKDzmaABcO4uMIKj0zigpFhfK3AR3EgYfgnpXt1h1U69eRvn5kwOcD6yxbmSv7606']);
   }
 }
