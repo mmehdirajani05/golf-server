@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
   import {
@@ -7,7 +8,9 @@
     Post,
     UseGuards,
     Request,
+    Req,
     } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthForgetRequestDto } from 'src/dto/authforgetrequest.dto';
 import { AuthLoginRequestDto } from 'src/dto/authloginrequest.dto';
@@ -78,11 +81,21 @@ import { BaseController } from '../base/base.controller';
       return this.OKResponse(data)
     }
 
-    // @Post('social-login')
-    // async socialLogin(@Body() params: SocialLoginDto ) {
-    //   const data =  await this.authService.socialLogin(params);
-    //   return this.OKResponse(data)
-    // }
+    @Post('google-login')
+    async socialLogin(@Body() params: SocialLoginDto ) {
+      const data =  await this.authService.socialLogin(params);
+      return this.OKResponse(data)
+    }
+
+    @Get('google')
+    @UseGuards(AuthGuard('google'))
+    async googleAuth(@Req() req) {}
+
+    @Get('google/redirect')
+    @UseGuards(AuthGuard('google'))
+    googleAuthRedirect(@Req() req) {
+      return this.authService.googleLogin(req)
+    }
 
   }
   

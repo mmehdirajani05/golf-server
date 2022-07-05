@@ -40,4 +40,20 @@ export class AuthService {
   async Register(params: AuthRegisterRequest) {
     return await this.userService.CreateUser(params);
   }
+
+  async socialLogin(params) {
+    return 
+  }
+
+  googleLogin(req) {
+    if (!req.user) {
+      return 'No user from google'
+    }
+
+    return {
+      message: 'User information from google',
+      user: req.user
+    }
+  }
+
 }
