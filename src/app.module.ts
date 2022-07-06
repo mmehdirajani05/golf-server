@@ -30,6 +30,7 @@ import { UserDetailsService } from './services/user-details/user-details.service
 import { UserDetailsController } from './controllers/user-details/user-details.controller';
 import { NotificationService } from './services/notification/notification.service';
 import { NotificationsModel } from './models/notifications.model';
+import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
@@ -46,6 +47,7 @@ import { NotificationsModel } from './models/notifications.model';
       },
     }),
     CacheModule.register(),
+    HttpModule
   ],
   controllers: [AppController, AuthController, UserController, MatchController, ScoreController, UserDetailsController],
   providers: [AppService, UserService, AuthService, JwtStrategy, GoogleStrategy, MatchService, ScoreService, UserDetailsService, NotificationService],

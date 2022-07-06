@@ -8,7 +8,4 @@ export class SocialLoginDto {
     @IsString()
     token: string;
 
-    @IsString()
-    type: string;
-
 }

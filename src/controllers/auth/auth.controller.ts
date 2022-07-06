@@ -1,7 +1,9 @@
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
-  import {
+  import { HttpService } from '@nestjs/axios';
+import {
     Body,
     Controller,
     Get,
@@ -9,9 +11,11 @@
     UseGuards,
     Request,
     Req,
+    Res,
     } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { AuthForgetRequestDto } from 'src/dto/authforgetrequest.dto';
 import { AuthLoginRequestDto } from 'src/dto/authloginrequest.dto';
 import { AuthRegisterRequestDto } from 'src/dto/authregisterrequest.dto';
@@ -82,9 +86,9 @@ import { BaseController } from '../base/base.controller';
     }
 
     @Post('google-login')
-    async socialLogin(@Body() params: SocialLoginDto ) {
-      const data =  await this.authService.socialLogin(params);
-      return this.OKResponse(data)
+    async socialLogin(@Body() params: SocialLoginDto, @Res() response: Response) {
+      const data =  await this.authService.googleAuthenticate(params);
+      return this.OKResponse(data);
     }
 
     @Get('google')

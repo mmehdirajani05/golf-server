@@ -1,5 +1,7 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { 
     AuthUpdatePasswordRequest,
     AuthLoginRequest,
@@ -9,10 +11,28 @@ import {
     AuthResetPasswordRequest
 } from 'src/interface/auth.interface';
 import { UserService } from '../user/user.service';
-
+import { HttpModule, HttpService } from '@nestjs/axios';
+import { firstValueFrom, lastValueFrom, Observable } from 'rxjs';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserModel } from 'src/models/user.model';
+import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { Cache } from 'cache-manager';
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+
+    private userService: UserService,
+
+    private httpService: HttpService,
+
+    @InjectRepository(UserModel)
+      private userRepository: Repository<UserModel>,
+
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+
+    ) {}
 
   async Login(params: AuthLoginRequest) {
     return await this.userService.VerifyEmailPassword(params);
@@ -40,9 +60,51 @@ export class AuthService {
   async Register(params: AuthRegisterRequest) {
     return await this.userService.CreateUser(params);
   }
+  
+  createSignedToken(user): any {
+    const signedUser = this.convertToSingedUser(user);
+    return this.jwtService.sign(signedUser);
+  }
 
-  async socialLogin(params) {
-    return 
+  convertToSingedUser(user) {
+    const { name, id, email } = user;
+    return {
+      id,
+      name,
+      email,
+    };
+  }
+
+  async googleAuthenticate(params) {
+    let googleData = await this.httpService.get('https://www.googleapis.com/oauth2/v3/userinfo?access_token='+params.token).toPromise();
+    if(googleData.data.email) {
+      let getUserDet = await this.userRepository.find({
+        where: {
+          email: googleData.data.email
+        }
+      })
+      if(getUserDet.length) {
+        // create a access token
+        const token = this.createSignedToken(getUserDet[0]);
+        // Save user token in cache
+        await this.cacheManager.set('userToken', token);
+        throw new HttpException({data: token}, HttpStatus.OK);;
+      } else {
+        let createUser = this.userRepository.create({
+          first_name: googleData.data.given_name,
+          last_name: googleData.data.family_name,
+          email: googleData.data.email
+        });
+        await this.userRepository.save(createUser);
+        // create a access token
+        const token = this.createSignedToken(createUser);
+        // Save user token in cache
+        await this.cacheManager.set('userToken', token);
+        throw new HttpException({data: token}, HttpStatus.OK);
+      }
+    } else {
+      throw new HttpException('Access token not valid', HttpStatus.BAD_REQUEST);
+    }
   }
 
   googleLogin(req) {
