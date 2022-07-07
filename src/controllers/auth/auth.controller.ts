@@ -91,6 +91,12 @@ import { BaseController } from '../base/base.controller';
       return this.OKResponse(data);
     }
 
+    @Post('fb-login')
+    async fbSocialLogin(@Body() params: SocialLoginDto, @Res() response: Response) {
+      const data =  await this.authService.fbSocialLogin(params);
+      return this.OKResponse(data);
+    }
+
     @Get('google')
     @UseGuards(AuthGuard('google'))
     async googleAuth(@Req() req) {}

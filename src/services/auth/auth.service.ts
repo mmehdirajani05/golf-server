@@ -76,33 +76,74 @@ export class AuthService {
   }
 
   async googleAuthenticate(params) {
-    let googleData = await this.httpService.get('https://www.googleapis.com/oauth2/v3/userinfo?access_token='+params.token).toPromise();
-    if(googleData.data.email) {
-      let getUserDet = await this.userRepository.find({
-        where: {
-          email: googleData.data.email
+    try{
+      let googleData = await this.httpService.get('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='+params.token).toPromise();
+      if(googleData.data.email) {
+        let getUserDet = await this.userRepository.find({
+          where: {
+            email: googleData.data.email
+          }
+        })
+        if(getUserDet.length) {
+          // create a access token
+          const token = this.createSignedToken(getUserDet[0]);
+          // Save user token in cache
+          await this.cacheManager.set('userToken', token);
+          throw new HttpException({data: token}, HttpStatus.OK);;
+        } else {
+          let createUser = this.userRepository.create({
+            first_name: googleData.data.given_name,
+            last_name: googleData.data.family_name,
+            email: googleData.data.email
+          });
+          await this.userRepository.save(createUser);
+          // create a access token
+          const token = this.createSignedToken(createUser);
+          // Save user token in cache
+          await this.cacheManager.set('userToken', token);
+          throw new HttpException({data: token}, HttpStatus.OK);
         }
-      })
-      if(getUserDet.length) {
-        // create a access token
-        const token = this.createSignedToken(getUserDet[0]);
-        // Save user token in cache
-        await this.cacheManager.set('userToken', token);
-        throw new HttpException({data: token}, HttpStatus.OK);;
       } else {
-        let createUser = this.userRepository.create({
-          first_name: googleData.data.given_name,
-          last_name: googleData.data.family_name,
-          email: googleData.data.email
-        });
-        await this.userRepository.save(createUser);
-        // create a access token
-        const token = this.createSignedToken(createUser);
-        // Save user token in cache
-        await this.cacheManager.set('userToken', token);
-        throw new HttpException({data: token}, HttpStatus.OK);
+        throw new HttpException('Access token not valid', HttpStatus.BAD_REQUEST);
       }
-    } else {
+    } catch(err) {
+      throw new HttpException('Access token not valid', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async fbSocialLogin(params) {
+    try {
+      let fbData = await this.httpService.get('https://graph.facebook.com/v14.0/me?fields=id%2Cname%2Cemail%2Cfirst_name%2Clast_name&access_token='+params.token).toPromise();
+      console.log(fbData.data);
+      if(fbData.data.email) {
+        let getUserDet = await this.userRepository.find({
+          where: {
+            email: fbData.data.email
+          }
+        })
+        if(getUserDet.length) {
+          // create a access token
+          const token = this.createSignedToken(getUserDet[0]);
+          // Save user token in cache
+          await this.cacheManager.set('userToken', token);
+          throw new HttpException({data: token}, HttpStatus.OK);;
+        } else {
+          let createUser = this.userRepository.create({
+            first_name: fbData.data.first_name,
+            last_name: fbData.data.last_name,
+            email: fbData.data.email
+          });
+          await this.userRepository.save(createUser);
+          // create a access token
+          const token = this.createSignedToken(createUser);
+          // Save user token in cache
+          await this.cacheManager.set('userToken', token);
+          throw new HttpException({data: token}, HttpStatus.OK);
+        }
+      } else {
+        throw new HttpException('Access token not valid', HttpStatus.BAD_REQUEST);
+      }
+    } catch(err) {
       throw new HttpException('Access token not valid', HttpStatus.BAD_REQUEST);
     }
   }
