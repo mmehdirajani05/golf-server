@@ -76,7 +76,7 @@ export class AuthService {
   }
 
   async googleAuthenticate(params) {
-    console.log(params.token)
+    console.log('==========================>',params)
     let googleData = await this.httpService.get('https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='+params.token).toPromise();
     if(googleData.data.email) {
       let getUserDet = await this.userRepository.find({
