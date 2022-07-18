@@ -126,8 +126,8 @@ export class AuthService {
         throw new HttpException({data: token}, HttpStatus.OK);;
       } else {
         let createUser = this.userRepository.create({
-          first_name: fbData.data.first_name,
-          last_name: fbData.data.last_name,
+          first_name: fbData.data.first_name ? fbData.data.first_name : '',
+          last_name: fbData.data.last_name ? fbData.data.last_name : '',
           email: fbData.data.email
         });
         await this.userRepository.save(createUser);
